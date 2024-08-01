@@ -21,11 +21,13 @@ public class SingleAvatar : MonoBehaviour
     private bool isAvatarRunning;
     private bool hasExperimentEnded = false;
     public float exposureDuration = 180f;
+    private int currentConditionIndex = 0;
+    private VisuomotorType[] conditions;
 
     [Header("Avatars")]
     public GameObject avatar;
     public GameObject prerecordedAvatar;
-    public GameObject syncAvatar; // Changed to public
+    public GameObject syncAvatar;
     private SkinnedMeshRenderer rocketboxSMR;
 
     public GameObject leftArmBM;
@@ -50,6 +52,7 @@ public class SingleAvatar : MonoBehaviour
     public TMP_Text mainInstructions;
     public bool isStartFlagOn;
     private bool isCountDown;
+    private float countDownTime;
 
     public VRIKCalibrationBasic ikCalibration;
 
@@ -73,7 +76,9 @@ public class SingleAvatar : MonoBehaviour
         startBox.SetActive(false);
         pointer.GetComponent<Renderer>().enabled = false;
 
-        syncAvatar = (vmType == VisuomotorType.Prerec) ? prerecordedAvatar : avatar;
+        conditions = new VisuomotorType[] { VisuomotorType.Sync, VisuomotorType.Async, VisuomotorType.Delay, VisuomotorType.Prerec };
+
+        PrepareCondition();
 
         activeLeftHandFingers = leftHandFingers;
         activeRightHandFingers = rightHandFingers;
@@ -120,8 +125,21 @@ public class SingleAvatar : MonoBehaviour
 
         if (isCountDown)
         {
-            currentTime += Time.deltaTime;
-            mainInstructions.text = "Stretch out your arms for calibration. The study will begin in " + (10f - currentTime).ToString("F0") + " seconds.";
+            currentTime -= Time.deltaTime;
+            int displayTime = Mathf.CeilToInt(currentTime);
+            mainInstructions.text = countDownTime > 0 ? "Stretch out your arms for calibration. The study will begin in " + displayTime + " seconds." : "Now you will move to the next condition. The study will start in " + displayTime + " seconds.";
+            if (currentTime <= 0)
+            {
+                isCountDown = false;
+                if (countDownTime > 0)
+                {
+                    StartCalibration();
+                }
+                else
+                {
+                    ShowStartButton();
+                }
+            }
         }
 
         if (isAvatarRunning)
@@ -153,20 +171,26 @@ public class SingleAvatar : MonoBehaviour
                 rocketboxSMR.enabled = false;
 
                 isAvatarRunning = false;
-                DisplayEndMessage();
+                currentConditionIndex++;
+                if (currentConditionIndex < conditions.Length)
+                {
+                    DisplayNextConditionMessage();
+                }
+                else
+                {
+                    DisplayEndMessage();
+                }
             }
         }
     }
 
     IEnumerator StartCondition()
     {
-        isCountDown = true;
+        StartCountdown(10, true);
+        yield return new WaitUntil(() => !isCountDown);
+
         ikCalibration.calibrateAvatar = true;
 
-        yield return new WaitForSeconds(10f);
-        ikCalibration.calibrateAvatar = true;
-
-        isCountDown = false;
         currentTime = 0f;
         isAvatarRunning = true;
         mainInstructions.text = "Please tilt your head downwards as if looking down at your body.";
@@ -176,17 +200,63 @@ public class SingleAvatar : MonoBehaviour
         {
             DisableAvatarTracking();
         }
+    }
 
-        yield return 0;
+    private void StartCountdown(float duration, bool calibration)
+    {
+        currentTime = duration;
+        countDownTime = calibration ? 10 : 0;
+        isCountDown = true;
+    }
+
+    private void StartCalibration()
+    {
+        ikCalibration.calibrateAvatar = true;
     }
 
     private void DisplayEndMessage()
     {
         mainInstructionsCanvas.SetActive(true);
-        mainInstructions.text = "Thank you for your participation. This is the end of the experiment.";
+        mainInstructions.text = "The end of the experiment. Thank you for your participation.";
 
         startBox.SetActive(false);
         hasExperimentEnded = true;
+    }
+
+    private void DisplayNextConditionMessage()
+    {
+        mainInstructionsCanvas.SetActive(true);
+        StartCountdown(10, false);
+    }
+
+    private void ShowStartButton()
+    {
+        mainInstructions.text = "Press the start button when you are ready.";
+        startBox.SetActive(true);
+        pointer.GetComponent<Renderer>().enabled = true;
+        PrepareCondition();  // Ensure the next condition is prepared when the start button is shown
+    }
+
+    private void PrepareCondition()
+    {
+        if (currentConditionIndex < conditions.Length)
+        {
+            vmType = conditions[currentConditionIndex];
+            selectedVmType = vmType;
+            syncAvatar = (vmType == VisuomotorType.Prerec) ? prerecordedAvatar : avatar;
+            DisableAllAvatarsExcept(syncAvatar);
+            rocketboxSMR = syncAvatar.GetComponentInChildren<SkinnedMeshRenderer>();
+            rocketboxSMR.enabled = false;
+
+            if (vmType == VisuomotorType.Delay)
+            {
+                InvokeRepeating("UpdateBuffer", 0, Time.fixedDeltaTime);
+            }
+            else
+            {
+                CancelInvoke("UpdateBuffer");
+            }
+        }
     }
 
     void UpdateBuffer()

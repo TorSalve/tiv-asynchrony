@@ -737,7 +737,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b28601ee4531bf14ea81fea8d043fede, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1778,6 +1778,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: b28601ee4531bf14ea81fea8d043fede, type: 3}
       propertyPath: m_Name
       value: Male_prerecorded
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b28601ee4531bf14ea81fea8d043fede, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3527638290263403398, guid: b28601ee4531bf14ea81fea8d043fede, type: 3}
       propertyPath: m_Materials.Array.data[1]
@@ -3246,7 +3250,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   participantID: 1
-  vmType: 4
+  vmType: 2
   currentTime: 0
   exposureDuration: 15
   avatar: {fileID: 2067620417}
