@@ -3249,8 +3249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 445527ae9ad034f4b9d69c51f7045436, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  participantID: 1
-  vmType: 2
+  participantID: 2
   currentTime: 0
   exposureDuration: 15
   avatar: {fileID: 2067620417}

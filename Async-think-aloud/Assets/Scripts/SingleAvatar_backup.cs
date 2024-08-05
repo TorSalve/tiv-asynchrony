@@ -58,8 +58,6 @@ public class SingleAvatar : MonoBehaviour
 
     private readonly Vector3 leftHandRotationOffset = new Vector3(180, 0, 180);
     private readonly Vector3 rightHandRotationOffset = new Vector3(180, 0, 0);
-    private readonly Vector3 rightHandFingerRotationOffset = new Vector3(0, 0, 180);
-
     void Start()
     {
         fingerBonesID = new List<string> {
@@ -238,7 +236,7 @@ public class SingleAvatar : MonoBehaviour
 
                 if (activeRightHandFingers != null && activeRightHandFingers[i] != null)
                 {
-                    activeRightHandFingers[i].rotation = delayedMovement.rightHandFingerRotations[i] * Quaternion.Euler(rightHandFingerRotationOffset);
+                    activeRightHandFingers[i].rotation = delayedMovement.rightHandFingerRotations[i];
                 }
             }
         }

@@ -4065,9 +4065,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   participantID: 1
-  vmType: 3
   currentTime: 0
-  exposureDuration: 30
+  exposureDuration: 10
   avatar: {fileID: 960144584}
   prerecordedAvatar: {fileID: 1516310795}
   syncAvatar: {fileID: 0}
@@ -6814,7 +6813,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abe3a2516552bb54ea7e7051a4abfb62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rightHandTracking: {fileID: 257512236}
 --- !u!54 &2116730912
 Rigidbody:
   m_ObjectHideFlags: 0

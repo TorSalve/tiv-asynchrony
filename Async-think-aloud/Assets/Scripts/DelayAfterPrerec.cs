@@ -1,5 +1,4 @@
-using System;
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -7,7 +6,7 @@ using Klak.Motion;
 using RootMotion.Demos;
 using RootMotion.FinalIK;
 
-public class SingleAvatar : MonoBehaviour
+public class DelayAfterPrerec : MonoBehaviour
 {
     [Header("Participant Info")]
     public int participantID = 0;
@@ -15,6 +14,7 @@ public class SingleAvatar : MonoBehaviour
     public enum VisuomotorType { Sync = 1, Async = 2, Delay = 3, Prerec = 4 };
 
     [Header("Conditions")]
+    public VisuomotorType vmType;
     private VisuomotorType selectedVmType;
     public float currentTime;
 
@@ -22,7 +22,7 @@ public class SingleAvatar : MonoBehaviour
     private bool hasExperimentEnded = false;
     public float exposureDuration = 180f;
     private int currentConditionIndex = 0;
-    private List<VisuomotorType> conditions;
+    private VisuomotorType[] conditions;
 
     [Header("Avatars")]
     public GameObject avatar;
@@ -83,57 +83,40 @@ public class SingleAvatar : MonoBehaviour
             { 4, 1, 2, 3 }
         };
 
-        int numConditions = Enum.GetNames(typeof(VisuomotorType)).Length;
-
-        conditions = new List<VisuomotorType>();
-
-        for (int i = 0; i < numConditions; i++)
+        int participantOffset = participantID % 4;
+        conditions = new VisuomotorType[4];
+        for (int i = 0; i < 4; i++)
         {
-            int participantOffset = participantID % numConditions;
-
-            if(participantOffset < 0 || participantOffset >= numConditions) {
-                throw new Exception("Participant offset out of bounds");
-            }
-
-            int condition = latinSquare[participantOffset, i];
-            
-            switch (condition) {
-                case 1:
-                    conditions.Add(VisuomotorType.Async);
-                    break;
-                case 2:
-                    conditions.Add(VisuomotorType.Delay);
-                    break;
-                case 3:
-                    conditions.Add(VisuomotorType.Prerec);
-                    break;
-                case 4:
-                    conditions.Add(VisuomotorType.Sync);
-                    break;
-                default:
-                    throw new Exception("Condition enum out of bounds");
-                    break;
-            }
+            conditions[i] = (VisuomotorType)latinSquare[participantOffset, i];
         }
 
-        if(conditions.Count != numConditions) {
-            throw new Exception("Not enough conditions");
-        }
+        PrepareCondition();
 
-        activeLeftHandFingers = new List<Transform>();
-        activeRightHandFingers = new List<Transform>();
+        activeLeftHandFingers = leftHandFingers;
+        activeRightHandFingers = rightHandFingers;
 
-        PrepareCondition(); // Initial condition preparation
+        ikCalibration = syncAvatar.GetComponent<VRIKCalibrationBasic>();
+        DisableAllAvatarsExcept(syncAvatar);
 
-        // ikCalibration will be assigned in PrepareCondition
-        DisableAllAvatarsExcept(null); // Disable all avatars initially
+        rocketboxSMR = syncAvatar.GetComponentInChildren<SkinnedMeshRenderer>();
 
-        // Ensure the first condition's avatar is enabled if Prerec is the first condition
-        if (conditions[0] == VisuomotorType.Prerec)
+        leftArmBM.transform.localPosition = Vector3.zero;
+        leftArmBM.GetComponent<BrownianMotion>().enabled = false;
+        rightArmBM.transform.localPosition = Vector3.zero;
+        rightArmBM.GetComponent<BrownianMotion>().enabled = false;
+
+        selectedVmType = vmType;
+        rocketboxSMR.enabled = false;
+
+        mainInstructions.text = mainInstructions.text + "\n\n" +
+            "Participant ID: " + participantID.ToString() + " avatar";
+
+        if (vmType == VisuomotorType.Delay)
         {
-            syncAvatar = prerecordedAvatar;
-            prerecordedAvatar.SetActive(true);
+            InvokeRepeating("UpdateBuffer", 0, Time.fixedDeltaTime);
         }
+
+        ResetTracking();
     }
 
     void Update()
@@ -179,20 +162,21 @@ public class SingleAvatar : MonoBehaviour
 
             if (currentTime < exposureDuration)
             {
-                switch (selectedVmType)
+                if (selectedVmType == VisuomotorType.Sync)
                 {
-                    case VisuomotorType.Sync:
-                        // Sync condition, do nothing special
-                        break;
-                    case VisuomotorType.Async:
-                        EnableBrownianMotion();
-                        break;
-                    case VisuomotorType.Delay:
-                        ApplyDelayedMovements();
-                        break;
-                    case VisuomotorType.Prerec:
-                        // Prerecorded condition, avatars remain static
-                        break;
+                    // Sync condition, do nothing special
+                }
+                else if (selectedVmType == VisuomotorType.Async)
+                {
+                    EnableBrownianMotion();
+                }
+                else if (selectedVmType == VisuomotorType.Delay)
+                {
+                    ApplyDelayedMovements();
+                }
+                else if (selectedVmType == VisuomotorType.Prerec)
+                {
+                    // Prerecorded condition, avatars remain static
                 }
             }
             else
@@ -202,7 +186,7 @@ public class SingleAvatar : MonoBehaviour
 
                 isAvatarRunning = false;
                 currentConditionIndex++;
-                if (currentConditionIndex < conditions.Count)
+                if (currentConditionIndex < conditions.Length)
                 {
                     DisplayNextConditionMessage();
                 }
@@ -222,7 +206,7 @@ public class SingleAvatar : MonoBehaviour
 
     IEnumerator StartCondition()
     {
-        StartCountdown(5, true);
+        StartCountdown(10, true);
         yield return new WaitUntil(() => !isCountDown);
 
         ikCalibration.calibrateAvatar = true;
@@ -245,7 +229,7 @@ public class SingleAvatar : MonoBehaviour
     private void StartCountdown(float duration, bool calibration)
     {
         currentTime = duration;
-        countDownTime = calibration ? 5 : 0;
+        countDownTime = calibration ? 10 : 0;
         isCountDown = true;
     }
 
@@ -266,7 +250,7 @@ public class SingleAvatar : MonoBehaviour
     private void DisplayNextConditionMessage()
     {
         mainInstructionsCanvas.SetActive(true);
-        StartCountdown(5, false);
+        StartCountdown(10, false);
     }
 
     private void ShowStartButton()
@@ -279,49 +263,48 @@ public class SingleAvatar : MonoBehaviour
 
     private void PrepareCondition()
     {
-        if (currentConditionIndex < conditions.Count)
+        if (currentConditionIndex < conditions.Length)
         {
-            selectedVmType = conditions[currentConditionIndex];
-            
-            syncAvatar = (selectedVmType == VisuomotorType.Prerec) ? prerecordedAvatar : avatar;
+            vmType = conditions[currentConditionIndex];
+            selectedVmType = vmType;
+            syncAvatar = (vmType == VisuomotorType.Prerec) ? prerecordedAvatar : avatar;
             DisableAllAvatarsExcept(syncAvatar);
             rocketboxSMR = syncAvatar.GetComponentInChildren<SkinnedMeshRenderer>();
             rocketboxSMR.enabled = false;
 
-            ikCalibration = syncAvatar.GetComponent<VRIKCalibrationBasic>();
-
-            movementQueue.Clear();
-            CancelInvoke("UpdateBuffer");
-            if (selectedVmType == VisuomotorType.Delay)
+            if (vmType == VisuomotorType.Delay)
             {
                 InvokeRepeating("UpdateBuffer", 0, Time.fixedDeltaTime);
             }
+            else
+            {
+                CancelInvoke("UpdateBuffer");
+            }
 
-            EnableAvatarTracking(); // Ensure tracking is enabled regardless of the condition
-
-            // Ensure finger tracking is re-assigned
-            AssignFingers();
-            activeLeftHandFingers = leftHandFingers;
-            activeRightHandFingers = rightHandFingers;
-
-            // Activate the sync avatar to ensure it's visible
-            syncAvatar.SetActive(true);
+            if (vmType != VisuomotorType.Prerec)
+            {
+                EnableAvatarTracking(); // Re-enable tracking if not in Prerec condition
+            }
         }
     }
 
     private void EnableAvatarTracking()
     {
-        if (syncAvatar != null)
+        if (syncAvatar.GetComponent<VRIK>() != null)
         {
             syncAvatar.GetComponent<VRIK>().enabled = true;
-            leftHandTracking.SetActive(true);
-            rightHandTracking.SetActive(true);
-
-            // Reassign the fingers after enabling tracking
-            AssignFingers();
-            activeLeftHandFingers = leftHandFingers;
-            activeRightHandFingers = rightHandFingers;
         }
+        if (leftHandTracking != null)
+        {
+            leftHandTracking.SetActive(true);
+        }
+        if (rightHandTracking != null)
+        {
+            rightHandTracking.SetActive(true);
+        }
+
+        // Reassign the fingers after enabling tracking
+        AssignFingers();
     }
 
     private void ResetTracking()
@@ -337,8 +320,6 @@ public class SingleAvatar : MonoBehaviour
 
         // Reassign the fingers after resetting tracking
         AssignFingers();
-        activeLeftHandFingers = leftHandFingers;
-        activeRightHandFingers = rightHandFingers;
     }
 
     private void RefreshAllTrackingAndComponents()
@@ -350,6 +331,17 @@ public class SingleAvatar : MonoBehaviour
         DisableAllAvatarsExcept(syncAvatar);
         EnableAvatarTracking();
 
+        // Reinitialize movement queue
+        movementQueue.Clear();
+        if (vmType == VisuomotorType.Delay)
+        {
+            InvokeRepeating("UpdateBuffer", 0, Time.fixedDeltaTime);
+        }
+        else
+        {
+            CancelInvoke("UpdateBuffer");
+        }
+
         // Calibrate avatar again
         ikCalibration = syncAvatar.GetComponent<VRIKCalibrationBasic>();
         ikCalibration.calibrateAvatar = true;
@@ -357,14 +349,20 @@ public class SingleAvatar : MonoBehaviour
         // Ensure finger tracking is re-enabled
         activeLeftHandFingers = leftHandFingers;
         activeRightHandFingers = rightHandFingers;
+
+        // Ensure delay logic is properly reset
+        if (selectedVmType == VisuomotorType.Delay)
+        {
+            movementQueue.Clear();
+            CancelInvoke("UpdateBuffer");
+            InvokeRepeating("UpdateBuffer", 0, Time.fixedDeltaTime);
+        }
     }
 
     private void AssignFingers()
     {
         leftHandFingers = AssignHandFingers(leftHandTracking);
         rightHandFingers = AssignHandFingers(rightHandTracking);
-        activeLeftHandFingers = leftHandFingers;
-        activeRightHandFingers = rightHandFingers;
     }
 
     private List<Transform> AssignHandFingers(GameObject handTracking)
@@ -383,11 +381,6 @@ public class SingleAvatar : MonoBehaviour
 
     void UpdateBuffer()
     {
-        if(selectedVmType != VisuomotorType.Delay) {
-            CancelInvoke("UpdateBuffer");
-            return;
-        }
-
         if (movementQueue.Count > delayTime / Time.fixedDeltaTime)
         {
             movementQueue.Dequeue();
@@ -443,21 +436,21 @@ public class SingleAvatar : MonoBehaviour
 
     private void EnableBrownianMotion()
     {
-        if (leftArmBM != null && !leftArmBM.GetComponent<BrownianMotion>().enabled)
+        if (!leftArmBM.GetComponent<BrownianMotion>().enabled)
             leftArmBM.GetComponent<BrownianMotion>().enabled = true;
 
-        if (rightArmBM != null && !rightArmBM.GetComponent<BrownianMotion>().enabled)
+        if (!rightArmBM.GetComponent<BrownianMotion>().enabled)
             rightArmBM.GetComponent<BrownianMotion>().enabled = true;
     }
 
     private void DisableBrownianMotion()
     {
-        if (leftArmBM != null && leftArmBM.GetComponent<BrownianMotion>().enabled)
+        if (leftArmBM.GetComponent<BrownianMotion>().enabled)
         {
             leftArmBM.transform.localPosition = Vector3.zero;
             leftArmBM.GetComponent<BrownianMotion>().enabled = false;
         }
-        if (rightArmBM != null && rightArmBM.GetComponent<BrownianMotion>().enabled)
+        if (rightArmBM.GetComponent<BrownianMotion>().enabled)
         {
             rightArmBM.transform.localPosition = Vector3.zero;
             rightArmBM.GetComponent<BrownianMotion>().enabled = false;
@@ -466,27 +459,24 @@ public class SingleAvatar : MonoBehaviour
 
     private void DisableAvatarTracking()
     {
-        if (syncAvatar != null)
+        if (syncAvatar.GetComponent<VRIK>() != null)
         {
-            if (syncAvatar.GetComponent<VRIK>() != null)
-            {
-                syncAvatar.GetComponent<VRIK>().enabled = false;
-            }
-            if (leftHandTracking != null)
-            {
-                leftHandTracking.SetActive(false);
-            }
-            if (rightHandTracking != null)
-            {
-                rightHandTracking.SetActive(false);
-            }
+            syncAvatar.GetComponent<VRIK>().enabled = false;
+        }
+        if (leftHandTracking != null)
+        {
+            leftHandTracking.SetActive(false);
+        }
+        if (rightHandTracking != null)
+        {
+            rightHandTracking.SetActive(false);
         }
     }
 
     private void DisableAllAvatarsExcept(GameObject activeAvatar)
     {
-        if (avatar != null) avatar.SetActive(activeAvatar == avatar);
-        if (prerecordedAvatar != null) prerecordedAvatar.SetActive(activeAvatar == prerecordedAvatar);
+        avatar.SetActive(activeAvatar == avatar);
+        prerecordedAvatar.SetActive(activeAvatar == prerecordedAvatar);
     }
 
     private struct MovementData
@@ -515,4 +505,4 @@ public static class TransformExtensionsAlternative
         }
         return null;
     }
-}
+}*/
