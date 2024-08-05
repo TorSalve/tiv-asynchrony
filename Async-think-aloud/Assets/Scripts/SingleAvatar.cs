@@ -403,10 +403,41 @@ public class SingleAvatar : MonoBehaviour
             rightHandFingerRotations = new Quaternion[fingerBonesID.Count]
         };
 
-        for (int i = 0; i < fingerBonesID.Count; i++)
+        /*for (int i = 0; i < fingerBonesID.Count; i++)
         {
             currentMovement.leftHandFingerRotations[i] = leftHandTracking.transform.FindChildRecursiveAlternative(fingerBonesID[i]).rotation;
             currentMovement.rightHandFingerRotations[i] = rightHandTracking.transform.FindChildRecursiveAlternative(fingerBonesID[i]).rotation;
+        }*/
+
+        for (int i = 0; i < fingerBonesID.Count; i++)
+        {
+            try
+            {
+                Transform leftFinger = leftHandTracking.transform.FindChildRecursiveAlternative(fingerBonesID[i]);
+                Transform rightFinger = rightHandTracking.transform.FindChildRecursiveAlternative(fingerBonesID[i]);
+
+                if (leftFinger != null)
+                {
+                    currentMovement.leftHandFingerRotations[i] = leftFinger.rotation;
+                }
+                else
+                {
+                   // Debug.LogWarning($"Left finger bone {fingerBonesID[i]} not found.");
+                }
+
+                if (rightFinger != null)
+                {
+                    currentMovement.rightHandFingerRotations[i] = rightFinger.rotation;
+                }
+                else
+                {
+                   // Debug.LogWarning($"Right finger bone {fingerBonesID[i]} not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Exception caught in UpdateBuffer loop for finger bone {fingerBonesID[i]}: {ex.Message}");
+            }
         }
 
         movementQueue.Enqueue(currentMovement);

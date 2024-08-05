@@ -4064,7 +4064,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 445527ae9ad034f4b9d69c51f7045436, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  participantID: 1
+  participantID: 3
   currentTime: 0
   exposureDuration: 10
   avatar: {fileID: 960144584}
