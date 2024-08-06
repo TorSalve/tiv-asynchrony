@@ -8,9 +8,6 @@ using RootMotion.FinalIK;
 
 public class SingleAvatar : MonoBehaviour
 {
-    [Header("Participant Info")]
-    public int participantID = 0;
-
     public enum VisuomotorType { Sync = 1, Async = 2, Delay = 3, Prerec = 4 };
 
     [Header("Conditions")]
@@ -102,7 +99,7 @@ public class SingleAvatar : MonoBehaviour
         rocketboxSMR.enabled = false;
 
         mainInstructions.text = mainInstructions.text + "\n\n" +
-            "Participant ID: " + participantID.ToString() + " avatar";
+            "Participant ID: XXXXXXXXX avatar";
 
         questionnaireController = this.GetComponent<QuestionnaireController>();
 

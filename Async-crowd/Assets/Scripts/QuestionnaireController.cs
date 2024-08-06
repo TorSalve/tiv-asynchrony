@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System.IO;
+using System;
 
 public class QuestionnaireController : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class QuestionnaireController : MonoBehaviour
     public GameObject susScaleGO;
     public GameObject sexScaleGO;
     public GameObject ageScaleGO;
-    public List<int> responses;
+    private List<int> responses;
     private List<QuestionnaireData> items = new List<QuestionnaireData>();
 
     private List<QuestionnaireData> spesQuestions;
@@ -44,7 +45,18 @@ public class QuestionnaireController : MonoBehaviour
     private int currentAgeScale;
     private int currentScale;
     public int currentItem;
-    private StreamWriter questionnaireWriter;
+
+    public  Dictionary<string, int> timestamps;
+
+    
+    private long timestamp()
+    {
+        return new System.DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
+    }
+
+    public void AddTimeStamp(string key) {
+        this.timestamps.Add(key, (int)this.timestamp()); 
+    }
 
     void Start()
     {
@@ -62,6 +74,9 @@ public class QuestionnaireController : MonoBehaviour
         susScaleGO.SetActive(false);
         sexScaleGO.SetActive(false);
         ageScaleGO.SetActive(false);
+
+        this.timestamps = new Dictionary<string, int>();
+        this.AddTimeStamp("init"); // TODO: add more timestamps
     }
 
     void Update()
@@ -108,7 +123,6 @@ public class QuestionnaireController : MonoBehaviour
 
                     Debug.LogWarning(
                         currentItem + ", " +
-                        singleAvatar.participantID + ", " +
                         singleAvatar.VMType + ", " +
                         items[currentItem].item + ", " +
                         responses[currentItem] + ", " +
@@ -201,8 +215,6 @@ public class QuestionnaireController : MonoBehaviour
 
     public void InitializeQuestionnaire()
     {
-        string questionnairePath = Helpers.CreateDataPath(singleAvatar.participantID, "_" + singleAvatar.VMType.ToString());
-        questionnaireWriter = new StreamWriter(questionnairePath, true);
         mainText.text = "Please fill out the questionnaire based on the last experience.";
         isStart = false;
         isEnd = false;
@@ -313,19 +325,10 @@ public class QuestionnaireController : MonoBehaviour
 
     IEnumerator WriteQuestionnaireData()
     {
-        questionnaireWriter.Write(
-            "ParticipantID" + "," +
-            "Visuomotor_type" + "," +
-            "Item" + "," +
-            "Response" + "\n");
+        ServerHandler sh = GameObject.Find("ServerHandler").GetComponent<ServerHandler>();
 
-        for (int i = 0; i < responses.Count; i++)
-        {
-            questionnaireWriter.Write(
-                $"{{\"ParticipantID\":\"{singleAvatar.participantID}\",\"Visuomotor_type\":\"{singleAvatar.VMType}\",\"Item\":\"{items[i].shortKey}\",\"Response\":\"{responses[i]}\", \"{items[i].shortKey}\":\"{responses[i]}\"}}" + "\n");
-        }
-        questionnaireWriter.Flush();
-        questionnaireWriter.Close();
+        sh.SendData(items, responses, this.singleAvatar.VMType.ToString(), timestamps);
+
         yield return 0;
     }
 

@@ -13,29 +13,46 @@ public class ServerHandler : MonoBehaviour
     public string API_URL = "https://body-ownership.ew.r.appspot.com/entry";
     private UserData userData;
 
+    private int startTime;
+
+    private long timestamp()
+    {
+        return new System.DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
-        // SHOWCASE TO OLGA HOW TO USE THE SERVERHANDLER
-        bool isTest = false;
-        List<QuestionAnswer> answers = new List<QuestionAnswer>();
-        
-        // add some user generated data
-        answers.Add(new QuestionAnswer("Q1", 3));
-        answers.Add(new QuestionAnswer("Q2", 4));
-        answers.Add(new QuestionAnswer("Q3", 7));
-
-        this.userData = new UserData(answers, isTest);
-        this.userData.setEnd();
-
-        // send it to the server
-        SendDataToServer();
+        this.startTime = (int)this.timestamp();
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void SendData(List<QuestionnaireController.QuestionnaireData> items, List<int> responses, string condition, Dictionary<string, int> timestamps)  {
+
+        bool isTest = false;
+        List<QuestionAnswer> answers = new List<QuestionAnswer>();
+
+        if(items.Count != responses.Count) {
+            throw new Exception("questions and answers not same length");
+        }
+        
+        for (int i = 0; i < responses.Count; i++)
+        {
+            answers.Add(new QuestionAnswer(items[i].shortKey, responses[i]));
+        }
+
+        this.userData = new UserData(answers, isTest, condition, timestamps);
+        this.userData.setStart(this.startTime);
+        this.userData.setEnd();
+
+        // send it to the server
+        SendDataToServer();
     }
 
     public string toJSON()
