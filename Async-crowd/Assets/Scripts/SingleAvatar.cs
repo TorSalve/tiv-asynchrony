@@ -15,7 +15,7 @@ public class SingleAvatar : MonoBehaviour
 
     [Header("Conditions")]
     private VisuomotorType vmType; // Changed to private
-    public VisuomotorType VMType // Public getter, private setter
+    public VisuomotorType VMType 
     {
         get { return vmType; }
         private set { vmType = value; }
@@ -235,8 +235,24 @@ public class SingleAvatar : MonoBehaviour
 
         for (int i = 0; i < fingerBonesID.Count; i++)
         {
-            currentMovement.leftHandFingerRotations[i] = leftHandTracking.transform.FindChildRecursive(fingerBonesID[i]).rotation;
-            currentMovement.rightHandFingerRotations[i] = rightHandTracking.transform.FindChildRecursive(fingerBonesID[i]).rotation;
+            try
+            {
+                Transform leftFinger = leftHandTracking.transform.FindChildRecursive(fingerBonesID[i]);
+                if (leftFinger != null)
+                {
+                    currentMovement.leftHandFingerRotations[i] = leftFinger.rotation;
+                }
+
+                Transform rightFinger = rightHandTracking.transform.FindChildRecursive(fingerBonesID[i]);
+                if (rightFinger != null)
+                {
+                    currentMovement.rightHandFingerRotations[i] = rightFinger.rotation;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Exception caught in UpdateBuffer loop: " + ex.Message);
+            }
         }
 
         movementQueue.Enqueue(currentMovement);
@@ -258,14 +274,21 @@ public class SingleAvatar : MonoBehaviour
 
             for (int i = 0; i < fingerBonesID.Count; i++)
             {
-                if (activeLeftHandFingers != null && activeLeftHandFingers[i] != null)
+                try
                 {
-                    activeLeftHandFingers[i].rotation = delayedMovement.leftHandFingerRotations[i];
-                }
+                    if (activeLeftHandFingers != null && activeLeftHandFingers[i] != null)
+                    {
+                        activeLeftHandFingers[i].rotation = delayedMovement.leftHandFingerRotations[i];
+                    }
 
-                if (activeRightHandFingers != null && activeRightHandFingers[i] != null)
+                    if (activeRightHandFingers != null && activeRightHandFingers[i] != null)
+                    {
+                        activeRightHandFingers[i].rotation = delayedMovement.rightHandFingerRotations[i] * Quaternion.Euler(rightHandFingerRotationOffset);
+                    }
+                }
+                catch (System.Exception ex)
                 {
-                    activeRightHandFingers[i].rotation = delayedMovement.rightHandFingerRotations[i] * Quaternion.Euler(rightHandFingerRotationOffset);
+                    Debug.LogError("Exception caught in ApplyDelayedMovements loop: " + ex.Message);
                 }
             }
         }

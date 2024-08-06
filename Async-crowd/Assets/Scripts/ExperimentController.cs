@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -330,4 +330,4 @@ public class ExperimentController : MonoBehaviour
         public Quaternion[] leftHandFingerRotations;
         public Quaternion[] rightHandFingerRotations;
     }
-}
+}*/

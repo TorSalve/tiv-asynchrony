@@ -567,7 +567,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e778cc0bde4e146dc8973f1f4f9fd2bb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.035
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e778cc0bde4e146dc8973f1f4f9fd2bb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4064,9 +4064,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 445527ae9ad034f4b9d69c51f7045436, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  participantID: 3
+  participantID: 2
   currentTime: 0
-  exposureDuration: 10
+  exposureDuration: 180
   avatar: {fileID: 960144584}
   prerecordedAvatar: {fileID: 1516310795}
   syncAvatar: {fileID: 0}

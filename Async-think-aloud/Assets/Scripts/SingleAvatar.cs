@@ -112,7 +112,7 @@ public class SingleAvatar : MonoBehaviour
                     break;
                 default:
                     throw new Exception("Condition enum out of bounds");
-                    break;
+                    // break;
             }
         }
 
