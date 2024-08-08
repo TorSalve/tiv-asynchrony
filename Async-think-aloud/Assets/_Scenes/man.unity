@@ -1790,7 +1790,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: b28601ee4531bf14ea81fea8d043fede, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 18fc572a91613d547aeb70ab5c70007d, type: 2}
+      objectReference: {fileID: 9100000, guid: 9b72640258fceb5489171f660d827475, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4492,7 +4492,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Please put down your controllers and then touch 'start' with the pink dot.
+  m_text: 'When you feel ready, put down the controllers and touch the"Start" button
+    in front of you with the red dot.
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
