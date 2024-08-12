@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PickAvatar : MonoBehaviour
+public class IntroScene : MonoBehaviour
 {
     public bool isStartFlagOn;
     public string sceneToLoad;
@@ -20,8 +20,7 @@ public class PickAvatar : MonoBehaviour
 
     private void Update()
     {
-        // Detect if any button is pressed
-        if (OVRInput.GetDown(OVRInput.Button.Any)) 
+        if (OVRInput.GetDown(OVRInput.Button.One)) // Detects if the A button is pressed
         {
             ShowNextInstructionPage();
         }

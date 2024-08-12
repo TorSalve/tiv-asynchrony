@@ -5,18 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/_Scenes/ExpV1.unity
-    guid: 5e15ad93957e64ac7bb41feaa124995f
   - enabled: 1
     path: Assets/_Scenes/PickAvatar.unity
     guid: 8292f173d6043c049919ee2e097d4fdd
   - enabled: 1
-    path: Assets/_Scenes/woman.unity
-    guid: 6cafed0f613679748965f8f53145de20
-  - enabled: 1
     path: Assets/_Scenes/man.unity
     guid: b8169b4ee2fa8564a80ecc7ab05dcc90
+  - enabled: 1
+    path: Assets/_Scenes/woman.unity
+    guid: 6cafed0f613679748965f8f53145de20
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 7ecf67d6c13bd45a38bfb8911bc23494, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: b5b710226b0f74b388f9511babe24bde, type: 2}

@@ -199,6 +199,9 @@ public class SingleAvatar : MonoBehaviour
         if (VMType == VisuomotorType.Prerec)
         {
             DisableAvatarTracking();
+            Vector3 calibratedPosition = ikCalibration.transform.position;
+            prerecordedAvatar.transform.position = new Vector3(calibratedPosition.x, calibratedPosition.y, calibratedPosition.z - 0.035f);
+
         }
 
         yield return 0;

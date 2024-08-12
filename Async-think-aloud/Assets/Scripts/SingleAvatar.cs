@@ -222,7 +222,7 @@ public class SingleAvatar : MonoBehaviour
 
     IEnumerator StartCondition()
     {
-        StartCountdown(5, true);
+        StartCountdown(10, true);
         yield return new WaitUntil(() => !isCountDown);
 
         ikCalibration.calibrateAvatar = true;
@@ -235,6 +235,8 @@ public class SingleAvatar : MonoBehaviour
         if (selectedVmType == VisuomotorType.Prerec)
         {
             DisableAvatarTracking();
+            Vector3 calibratedPosition = ikCalibration.transform.position;
+            prerecordedAvatar.transform.position = new Vector3(calibratedPosition.x, calibratedPosition.y, calibratedPosition.z - 0.035f);
         }
         else
         {
@@ -245,7 +247,7 @@ public class SingleAvatar : MonoBehaviour
     private void StartCountdown(float duration, bool calibration)
     {
         currentTime = duration;
-        countDownTime = calibration ? 5 : 0;
+        countDownTime = calibration ? 10 : 0;
         isCountDown = true;
     }
 
@@ -266,7 +268,7 @@ public class SingleAvatar : MonoBehaviour
     private void DisplayNextConditionMessage()
     {
         mainInstructionsCanvas.SetActive(true);
-        StartCountdown(5, false);
+        StartCountdown(10, false);
     }
 
     private void ShowStartButton()
