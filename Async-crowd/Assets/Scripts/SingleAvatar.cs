@@ -99,7 +99,7 @@ public class SingleAvatar : MonoBehaviour
         rocketboxSMR.enabled = false;
 
         mainInstructions.text = mainInstructions.text + "\n\n" +
-            "Participant ID: XXXXXXXXX avatar";
+            "";
 
         questionnaireController = this.GetComponent<QuestionnaireController>();
 
@@ -210,7 +210,7 @@ public class SingleAvatar : MonoBehaviour
     private void DisplayEndMessage()
     {
         mainInstructionsCanvas.SetActive(true);
-        mainInstructions.text = "Thank you for your participation. This is the end of the experiment.";
+        mainInstructions.text = "Thank you for your participation. This is the end of the experiment. Your reference code is LOCH NESS 44.";
 
         startBox.SetActive(false);
         hasExperimentEnded = true;

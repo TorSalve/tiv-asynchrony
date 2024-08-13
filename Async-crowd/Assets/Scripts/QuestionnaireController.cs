@@ -80,68 +80,77 @@ public class QuestionnaireController : MonoBehaviour
     }
 
     void Update()
+{
+    if (!isStart)
     {
-        if (!isStart)
+        if (OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch) || 
+            OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.LTouch) || 
+            Input.GetKeyDown(KeyCode.A))
         {
-            if (OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch) || Input.GetKeyDown(KeyCode.A))
+            if (!isEnd)
             {
-                if (!isEnd)
-                {
-                    isStart = true;
-                    InitializeCurrentQuestion();
-                }
+                isStart = true;
+                InitializeCurrentQuestion();
             }
         }
-        else
+    }
+    else
+    {
+        if (OVRInput.GetUp(OVRInput.Button.PrimaryThumbstickLeft, OVRInput.Controller.RTouch) || 
+            OVRInput.GetUp(OVRInput.Button.PrimaryThumbstickLeft, OVRInput.Controller.LTouch) || 
+            Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            if (OVRInput.GetUp(OVRInput.Button.PrimaryThumbstickLeft, OVRInput.Controller.RTouch) || Input.GetKeyDown(KeyCode.LeftArrow))
+            if (currentScale > 1)
             {
-                if (currentScale > 1)
-                {
-                    currentScaleGO.SetActive(false);
-                    currentScale -= 1;
-                    currentScaleGO = currentScales[currentScale - 1];
-                    currentScaleGO.SetActive(true);
-                }
+                currentScaleGO.SetActive(false);
+                currentScale -= 1;
+                currentScaleGO = currentScales[currentScale - 1];
+                currentScaleGO.SetActive(true);
             }
-            else if (OVRInput.GetUp(OVRInput.Button.PrimaryThumbstickRight, OVRInput.Controller.RTouch) || Input.GetKeyDown(KeyCode.RightArrow))
+        }
+        else if (OVRInput.GetUp(OVRInput.Button.PrimaryThumbstickRight, OVRInput.Controller.RTouch) || 
+                 OVRInput.GetUp(OVRInput.Button.PrimaryThumbstickRight, OVRInput.Controller.LTouch) || 
+                 Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            if (currentScale < currentScales.Count)
             {
-                if (currentScale < currentScales.Count)
-                {
-                    currentScaleGO.SetActive(false);
-                    currentScale += 1;
-                    currentScaleGO = currentScales[currentScale - 1];
-                    currentScaleGO.SetActive(true);
-                }
+                currentScaleGO.SetActive(false);
+                currentScale += 1;
+                currentScaleGO = currentScales[currentScale - 1];
+                currentScaleGO.SetActive(true);
             }
-            else if (OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch) || Input.GetKeyDown(KeyCode.A))
+        }
+        else if (OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch) || 
+                 OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.LTouch) || 
+                 Input.GetKeyDown(KeyCode.A))
+        {
+            if (currentItem < items.Count)
             {
+                responses[currentItem] = currentScale;
+                currentScaleGO.SetActive(false);
+
+                Debug.LogWarning(
+                    currentItem + ", " +
+                    singleAvatar.VMType + ", " +
+                    items[currentItem].item + ", " +
+                    responses[currentItem] + ", " +
+                    singleAvatar.currentTime.ToString("F3"));
+
+                currentItem += 1;
+
                 if (currentItem < items.Count)
                 {
-                    responses[currentItem] = currentScale;
-                    currentScaleGO.SetActive(false);
-
-                    Debug.LogWarning(
-                        currentItem + ", " +
-                        singleAvatar.VMType + ", " +
-                        items[currentItem].item + ", " +
-                        responses[currentItem] + ", " +
-                        singleAvatar.currentTime.ToString("F3"));
-
-                    currentItem += 1;
-
-                    if (currentItem < items.Count)
-                    {
-                        InitializeCurrentQuestion();
-                    }
-                    else
-                    {
-                        StartCoroutine(EndQuestionnaire());
-                    }
+                    InitializeCurrentQuestion();
+                }
+                else
+                {
+                    StartCoroutine(EndQuestionnaire());
                 }
             }
         }
     }
+}
+
 
     private void InitializeCurrentQuestion()
     {
@@ -215,7 +224,7 @@ public class QuestionnaireController : MonoBehaviour
 
     public void InitializeQuestionnaire()
     {
-        mainText.text = "Please fill out the questionnaire based on the last experience.";
+        mainText.text = "Please pick up the controllers and answer the questionnaire based on your experience.";
         isStart = false;
         isEnd = false;
 
@@ -320,7 +329,7 @@ public class QuestionnaireController : MonoBehaviour
         smallInstruction.text = "";
         largeInstruction.text = "";
         singleAvatar.isQuestionnaireDone = true;
-        mainText.text = "This is the end of the experiment. Thank you for participation.";
+        mainText.text = "This is the end of the experiment. Thank you for participation. Your reference code is LOCH NESS 44";
     }
 
     IEnumerator WriteQuestionnaireData()
