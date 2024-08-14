@@ -25,6 +25,8 @@ public class SingleAvatar : MonoBehaviour
     private bool isQuestionnaireRunning;
     private bool hasExperimentEnded = false; // Added missing variable
     public float exposureDuration = 180f;
+    public AudioSource audioSource;
+
 
     [Header("Avatars")]
     public GameObject avatar;
@@ -64,6 +66,19 @@ public class SingleAvatar : MonoBehaviour
     private readonly Vector3 leftHandRotationOffset = new Vector3(180, 0, 180);
     private readonly Vector3 rightHandRotationOffset = new Vector3(180, 0, 0);
     private readonly Vector3 rightHandFingerRotationOffset = new Vector3(0, 0, 180);
+
+    private OVRSkeletonRenderer leftHandSkeletonRenderer;
+    private OVRMesh leftHandMesh;
+    private OVRMeshRenderer leftHandMeshRenderer;
+    private SkinnedMeshRenderer leftHandSkinnedMeshRenderer;
+
+    private OVRSkeletonRenderer rightHandSkeletonRenderer;
+    private OVRMesh rightHandMesh;
+    private OVRMeshRenderer rightHandMeshRenderer;
+    private SkinnedMeshRenderer rightHandSkinnedMeshRenderer;
+
+    private Animator leftHandAnimator;
+    private Animator rightHandAnimator;
 
     void Start()
     {
@@ -107,25 +122,40 @@ public class SingleAvatar : MonoBehaviour
         {
             InvokeRepeating("UpdateBuffer", 0, Time.fixedDeltaTime);
         }
+
+        leftHandSkeletonRenderer = leftHandTracking.GetComponentInChildren<OVRSkeletonRenderer>();
+        leftHandMesh = leftHandTracking.GetComponentInChildren<OVRMesh>();
+        leftHandMeshRenderer = leftHandTracking.GetComponentInChildren<OVRMeshRenderer>();
+        leftHandSkinnedMeshRenderer = leftHandTracking.GetComponentInChildren<SkinnedMeshRenderer>();
+
+        rightHandSkeletonRenderer = rightHandTracking.GetComponentInChildren<OVRSkeletonRenderer>();
+        rightHandMesh = rightHandTracking.GetComponentInChildren<OVRMesh>();
+        rightHandMeshRenderer = rightHandTracking.GetComponentInChildren<OVRMeshRenderer>();
+        rightHandSkinnedMeshRenderer = rightHandTracking.GetComponentInChildren<SkinnedMeshRenderer>();
+
+        leftHandAnimator = leftHandTracking.GetComponentInChildren<Animator>();
+        rightHandAnimator = rightHandTracking.GetComponentInChildren<Animator>();
     }
 
     void Update()
+{
+    if (Input.GetKeyDown(KeyCode.S) || isStartFlagOn)
     {
-        if (Input.GetKeyDown(KeyCode.S) || isStartFlagOn)
+        isStartFlagOn = false;
+        startBox.SetActive(false);
+        pointer.GetComponent<Renderer>().enabled = false;
+
+        StartCoroutine(StartCondition());
+    }
+    else
+    {
+        if (!hasExperimentEnded && OVRPlugin.GetHandTrackingEnabled() && !isCountDown && !isAvatarRunning && !isQuestionnaireRunning)
         {
-            isStartFlagOn = false;
-            startBox.SetActive(false);
-            pointer.GetComponent<Renderer>().enabled = false;
-            StartCoroutine(StartCondition());
+            startBox.SetActive(true);
+            audioSource.Play();
+            pointer.GetComponent<Renderer>().enabled = true;
         }
-        else
-        {
-            if (!hasExperimentEnded && OVRPlugin.GetHandTrackingEnabled() && !isCountDown && !isAvatarRunning && !isQuestionnaireRunning)
-            {
-                startBox.SetActive(true);
-                pointer.GetComponent<Renderer>().enabled = true;
-            }
-        }
+    }
 
         if (isCountDown)
         {
@@ -186,6 +216,11 @@ public class SingleAvatar : MonoBehaviour
     {
         isCountDown = true;
         ikCalibration.calibrateAvatar = true;
+
+        if (isCountDown)
+        {
+            DisableHandTrackingComponents();
+        }
 
         yield return new WaitForSeconds(10f);
         ikCalibration.calibrateAvatar = true;
@@ -347,5 +382,25 @@ public class SingleAvatar : MonoBehaviour
         public Quaternion rightHandRotation;
         public Quaternion[] leftHandFingerRotations;
         public Quaternion[] rightHandFingerRotations;
+    }
+
+    private void DisableHandTrackingComponents()
+    {
+        // Disable all relevant components
+        if (leftHandSkeletonRenderer != null) leftHandSkeletonRenderer.enabled = false;
+        if (leftHandMesh != null) leftHandMesh.enabled = false;
+        if (leftHandMeshRenderer != null) leftHandMeshRenderer.enabled = false;
+        if (leftHandSkinnedMeshRenderer != null) leftHandSkinnedMeshRenderer.enabled = false;
+        if (leftHandAnimator != null) leftHandAnimator.enabled = false;
+
+        if (rightHandSkeletonRenderer != null) rightHandSkeletonRenderer.enabled = false;
+        if (rightHandMesh != null) rightHandMesh.enabled = false;
+        if (rightHandMeshRenderer != null) rightHandMeshRenderer.enabled = false;
+        if (rightHandSkinnedMeshRenderer != null) rightHandSkinnedMeshRenderer.enabled = false;
+        if (rightHandAnimator != null) rightHandAnimator.enabled = false;
+
+        // Optionally, disable the entire tracking GameObject to ensure no lingering effects
+       // if (leftHandTracking != null) leftHandTracking.SetActive(false);
+       // if (rightHandTracking != null) rightHandTracking.SetActive(false);
     }
 }

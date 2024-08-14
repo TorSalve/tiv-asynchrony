@@ -7,11 +7,7 @@ public class PickPointer : MonoBehaviour
     public GameObject rightHandTracking;
     private PickAvatar pickAvatar;
 
-    private Transform rightThumbTip;
     private Transform rightIndexTip;
-    private Transform rightMiddleTip;
-    private Transform rightRingTip;
-    private Transform rightPinkyTip;
 
     private void Start()
     {
@@ -29,19 +25,14 @@ public class PickPointer : MonoBehaviour
 
     private void Update()
     {
-        if (rightThumbTip == null || rightIndexTip == null || rightMiddleTip == null || rightRingTip == null || rightPinkyTip == null)
+        if (rightIndexTip == null)
         {
-            rightThumbTip = rightHandTracking.transform.FindChildRecursiveCustom("Hand_ThumbTip");
             rightIndexTip = rightHandTracking.transform.FindChildRecursiveCustom("Hand_IndexTip");
-            rightMiddleTip = rightHandTracking.transform.FindChildRecursiveCustom("Hand_MiddleTip");
-            rightRingTip = rightHandTracking.transform.FindChildRecursiveCustom("Hand_RingTip");
-            rightPinkyTip = rightHandTracking.transform.FindChildRecursiveCustom("Hand_PinkyTip");
         }
         else
         {
-            // Example: Moving the pointer to the average position of all finger tips
-            Vector3 averagePosition = (rightThumbTip.position + rightIndexTip.position + rightMiddleTip.position + rightRingTip.position + rightPinkyTip.position) / 5;
-            this.transform.position = averagePosition;
+            // Move the pointer to the position of the index finger tip
+            this.transform.position = rightIndexTip.position;
         }
     }
 
