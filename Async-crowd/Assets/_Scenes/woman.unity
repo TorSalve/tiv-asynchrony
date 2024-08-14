@@ -5750,7 +5750,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: f31f956e1df77494b8b598415bc2efe0, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -10585,6 +10585,11 @@ MonoBehaviour:
   isQuestionnaireDone: 0
   exposureDuration: 120
   audioSource: {fileID: 798528073}
+  startingAudioClip: {fileID: 8300000, guid: a24b660139cfa514db466522a3f71d2b, type: 3}
+  calibrationAudioClip: {fileID: 8300000, guid: 40415a69abffd9b498093729258698ba, type: 3}
+  ongoingAudioClip: {fileID: 8300000, guid: 558d5ef325203ea4183cc1a37f0a8944, type: 3}
+  questionnaireAudioClip: {fileID: 8300000, guid: 050fcbba8fd58b04b90ce37b0582ac4b, type: 3}
+  endAudioClip: {fileID: 8300000, guid: 8879aa820a0033a4a8470e4a18e33b26, type: 3}
   avatar: {fileID: 960144584}
   prerecordedAvatar: {fileID: 1516310795}
   syncAvatar: {fileID: 0}
@@ -15629,7 +15634,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: binary
+  m_text: non-binary
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

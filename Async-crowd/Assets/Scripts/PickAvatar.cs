@@ -9,11 +9,15 @@ public class PickAvatar : MonoBehaviour
     public string sceneToLoad;
 
     public GameObject[] instructionPages; // Array to hold the instruction pages
+    public AudioClip[] instructionAudioClips; // Array to hold the audio clips for each page
     public GameObject avatarSelection; // Reference to the Avatar Selection game object
+
     private int currentPageIndex = 0; // Keeps track of the current page
+    private AudioSource audioSource; // AudioSource to play the audio clips
 
     private void Start()
     {
+        audioSource = gameObject.AddComponent<AudioSource>(); // Add AudioSource component to the same GameObject
         ShowCurrentInstructionPage();
         avatarSelection.SetActive(false);
     }
@@ -50,6 +54,12 @@ public class PickAvatar : MonoBehaviour
         for (int i = 0; i < instructionPages.Length; i++)
         {
             instructionPages[i].SetActive(i == currentPageIndex);
+        }
+
+        if (instructionAudioClips.Length > currentPageIndex && instructionAudioClips[currentPageIndex] != null)
+        {
+            audioSource.clip = instructionAudioClips[currentPageIndex];
+            audioSource.Play();
         }
 
         if (currentPageIndex == instructionPages.Length - 1)

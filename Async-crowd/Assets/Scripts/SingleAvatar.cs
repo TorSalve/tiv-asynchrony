@@ -25,8 +25,14 @@ public class SingleAvatar : MonoBehaviour
     private bool isQuestionnaireRunning;
     private bool hasExperimentEnded = false; // Added missing variable
     public float exposureDuration = 180f;
-    public AudioSource audioSource;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip startingAudioClip; // Audio to play at the start
+    public AudioClip calibrationAudioClip;
+    public AudioClip ongoingAudioClip; // Audio to play when start button is pressed
+    public AudioClip questionnaireAudioClip; // Audio to play when questionnaire starts
+    public AudioClip endAudioClip;
 
     [Header("Avatars")]
     public GameObject avatar;
@@ -135,27 +141,33 @@ public class SingleAvatar : MonoBehaviour
 
         leftHandAnimator = leftHandTracking.GetComponentInChildren<Animator>();
         rightHandAnimator = rightHandTracking.GetComponentInChildren<Animator>();
+
+        // Play the starting audio
+        if (startingAudioClip != null)
+        {
+            audioSource.clip = startingAudioClip;
+            audioSource.Play();
+        }
     }
 
     void Update()
-{
-    if (Input.GetKeyDown(KeyCode.S) || isStartFlagOn)
     {
-        isStartFlagOn = false;
-        startBox.SetActive(false);
-        pointer.GetComponent<Renderer>().enabled = false;
-
-        StartCoroutine(StartCondition());
-    }
-    else
-    {
-        if (!hasExperimentEnded && OVRPlugin.GetHandTrackingEnabled() && !isCountDown && !isAvatarRunning && !isQuestionnaireRunning)
+        if (Input.GetKeyDown(KeyCode.S) || isStartFlagOn)
         {
-            startBox.SetActive(true);
-            audioSource.Play();
-            pointer.GetComponent<Renderer>().enabled = true;
+            isStartFlagOn = false;
+            startBox.SetActive(false);
+            pointer.GetComponent<Renderer>().enabled = false;
+
+            StartCoroutine(StartCondition());
         }
-    }
+        else
+        {
+            if (!hasExperimentEnded && OVRPlugin.GetHandTrackingEnabled() && !isCountDown && !isAvatarRunning && !isQuestionnaireRunning)
+            {
+                startBox.SetActive(true);
+                pointer.GetComponent<Renderer>().enabled = true;
+            }
+        }
 
         if (isCountDown)
         {
@@ -193,6 +205,13 @@ public class SingleAvatar : MonoBehaviour
 
                 isAvatarRunning = false;
                 isQuestionnaireRunning = true;
+
+                if (questionnaireAudioClip != null)
+                {
+                    audioSource.clip = questionnaireAudioClip;
+                    audioSource.Play();
+                }
+
                 questionnaireController.questionnaireCanvas.SetActive(true);
                 questionnaireController.InitializeQuestionnaire();
                 mainInstructionsCanvas.SetActive(false);
@@ -220,6 +239,8 @@ public class SingleAvatar : MonoBehaviour
         if (isCountDown)
         {
             DisableHandTrackingComponents();
+            audioSource.clip = calibrationAudioClip;
+            audioSource.Play();
         }
 
         yield return new WaitForSeconds(10f);
@@ -230,6 +251,13 @@ public class SingleAvatar : MonoBehaviour
         isAvatarRunning = true;
         mainInstructions.text = "Please tilt your head downwards as if looking down at your body.";
         rocketboxSMR.enabled = true;
+
+        // Play the ongoing audio when calibration starts
+        if (ongoingAudioClip != null)
+        {
+            audioSource.clip = ongoingAudioClip;
+            audioSource.Play();
+        }
 
         if (VMType == VisuomotorType.Prerec)
         {
@@ -243,13 +271,24 @@ public class SingleAvatar : MonoBehaviour
     }
 
     private void DisplayEndMessage()
-    {
-        mainInstructionsCanvas.SetActive(true);
-        mainInstructions.text = "Thank you for your participation. This is the end of the experiment. Your reference code is LOCH NESS 44.";
+{
+    mainInstructionsCanvas.SetActive(true);
+    mainInstructions.text = "Thank you for your participation. This is the end of the experiment. Your reference code is LOCH NESS 44.";
 
-        startBox.SetActive(false);
-        hasExperimentEnded = true;
+    startBox.SetActive(false);
+    hasExperimentEnded = true;
+
+    // Play the end message audio if it's assigned
+    if (endAudioClip != null)
+    {
+        audioSource.clip = endAudioClip;
+        audioSource.Play();
     }
+}
+
+
+    // Other methods remain unchanged...
+
 
     void UpdateBuffer()
     {
