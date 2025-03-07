@@ -1,77 +1,93 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
-public class IntroScene : MonoBehaviour
+namespace AsyncCrowd
 {
-    public bool isStartFlagOn;
-    public string sceneToLoad;
-
-    public GameObject[] instructionPages; // Array to hold the instruction pages
-    public GameObject avatarSelection; // Reference to the Avatar Selection game object
-    private int currentPageIndex = 0; // Keeps track of the current page
-
-    private void Start()
+    public class IntroScene : MonoBehaviour
     {
-        ShowCurrentInstructionPage();
-        avatarSelection.SetActive(false);
-    }
+        [Header("VR Controller Input")]
+        [SerializeField] private InputActionReference nextInstructionPageAction;
 
-    private void Update()
-    {
-        if (OVRInput.GetDown(OVRInput.Button.One)) // Detects if the A button is pressed
+        public bool isStartFlagOn;
+        public string sceneToLoad;
+
+        public GameObject[] instructionPages; // Array to hold the instruction pages
+        public GameObject avatarSelection; // Reference to the Avatar Selection game object
+        private int currentPageIndex = 0; // Keeps track of the current page
+
+        private void Start()
+        {
+            ShowCurrentInstructionPage();
+            avatarSelection.SetActive(false);
+        }
+
+        private void Update()
+        {
+            if (isStartFlagOn)
+            {
+                isStartFlagOn = false;
+                StartBoxPressed();
+            }
+        }
+
+        private void OnEnable()
+        {
+            nextInstructionPageAction.action.performed += OnNextInstructionPage;
+        }
+
+        private void OnDisable()
+        {
+            nextInstructionPageAction.action.performed -= OnNextInstructionPage;
+        }
+
+        private void OnNextInstructionPage(InputAction.CallbackContext context)
         {
             ShowNextInstructionPage();
         }
 
-        if (isStartFlagOn)
-        {
-            isStartFlagOn = false;
-            StartBoxPressed();
-        }
-    }
 
-    private void ShowNextInstructionPage()
-    {
-        currentPageIndex++;
-
-        if (currentPageIndex >= instructionPages.Length)
+        private void ShowNextInstructionPage()
         {
-            currentPageIndex = instructionPages.Length - 1;
+            currentPageIndex++;
+
+            if (currentPageIndex >= instructionPages.Length)
+            {
+                currentPageIndex = instructionPages.Length - 1;
+            }
+
+            ShowCurrentInstructionPage();
         }
 
-        ShowCurrentInstructionPage();
-    }
-
-    private void ShowCurrentInstructionPage()
-    {
-        for (int i = 0; i < instructionPages.Length; i++)
+        private void ShowCurrentInstructionPage()
         {
-            instructionPages[i].SetActive(i == currentPageIndex);
+            for (int i = 0; i < instructionPages.Length; i++)
+            {
+                instructionPages[i].SetActive(i == currentPageIndex);
+            }
+
+            if (currentPageIndex == instructionPages.Length - 1)
+            {
+                avatarSelection.SetActive(true);
+            }
+            else
+            {
+                avatarSelection.SetActive(false);
+            }
         }
 
-        if (currentPageIndex == instructionPages.Length - 1)
+        private void StartBoxPressed()
         {
-            avatarSelection.SetActive(true);
+            if (!string.IsNullOrEmpty(sceneToLoad))
+            {
+                SceneManager.LoadScene(sceneToLoad);
+            }
         }
-        else
-        {
-            avatarSelection.SetActive(false);
-        }
-    }
 
-    private void StartBoxPressed()
-    {
-        if (!string.IsNullOrEmpty(sceneToLoad))
+        // New method to handle button click and start the scene transition
+        public void OnAvatarButtonClicked()
         {
-            SceneManager.LoadScene(sceneToLoad);
+            isStartFlagOn = true;
         }
-    }
-
-    // New method to handle button click and start the scene transition
-    public void OnAvatarButtonClicked()
-    {
-        isStartFlagOn = true;
     }
 }

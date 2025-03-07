@@ -2,42 +2,45 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Rendering;
 
-public class LightingManager : MonoBehaviour
+namespace AsyncCrowd
 {
-    public Material defaultSkybox;
-    public Color ambientColor = Color.gray;
-    public float ambientIntensity = 1.0f;
-
-    private void Awake()
+    public class LightingManager : MonoBehaviour
     {
-        DontDestroyOnLoad(gameObject);
-    }
+        public Material defaultSkybox;
+        public Color ambientColor = Color.gray;
+        public float ambientIntensity = 1.0f;
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        ApplyLightingSettings();
-    }
-
-    private void ApplyLightingSettings()
-    {
-        if (defaultSkybox != null)
+        private void Awake()
         {
-            RenderSettings.skybox = defaultSkybox;
+            DontDestroyOnLoad(gameObject);
         }
-        
-        RenderSettings.ambientMode = AmbientMode.Skybox;
-        RenderSettings.ambientSkyColor = ambientColor;
-        RenderSettings.ambientIntensity = ambientIntensity;
-        DynamicGI.UpdateEnvironment();
+
+        private void OnEnable()
+        {
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            ApplyLightingSettings();
+        }
+
+        private void ApplyLightingSettings()
+        {
+            if (defaultSkybox != null)
+            {
+                RenderSettings.skybox = defaultSkybox;
+            }
+
+            RenderSettings.ambientMode = AmbientMode.Skybox;
+            RenderSettings.ambientSkyColor = ambientColor;
+            RenderSettings.ambientIntensity = ambientIntensity;
+            DynamicGI.UpdateEnvironment();
+        }
     }
 }

@@ -34,7 +34,7 @@ namespace RootMotion.Demos
 
         private void LateUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.C) || calibrateAvatar)
+            if (calibrateAvatar)
             {
                 // Calibrate the character, store data of the calibration
                 data = VRIKCalibrator.Calibrate(ik, centerEyeAnchor, leftHandAnchor, rightHandAnchor, headAnchorPositionOffset, headAnchorRotationOffset, handAnchorPositionOffset, handAnchorRotationOffset, scaleMlp);
@@ -47,27 +47,27 @@ namespace RootMotion.Demos
             * Calibration data still depends on bone orientations though, so the data is valid only for the character that it was calibrated to or characters with identical bone structures.
             * If you wish to use more than one character, it would be best to calibrate them all at once and store the CalibrationData for each one.
             * */
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                if (data.scale == 0f)
-                {
-                    Debug.LogError("No Calibration Data to calibrate to, please calibrate with 'C' first.");
-                }
-                else
-                {
-                    VRIKCalibrator.Calibrate(ik, data, centerEyeAnchor, null, leftHandAnchor, rightHandAnchor);
-                }
-            }
+            // if (Input.GetKeyDown(KeyCode.D))
+            // {
+            //     if (data.scale != 0f)
+            //     {
+            //         Debug.LogError("No Calibration Data to calibrate to, please calibrate with 'C' first.");
+            //     }
+            //     else
+            //     {
+            //         VRIKCalibrator.Calibrate(ik, data, centerEyeAnchor, null, leftHandAnchor, rightHandAnchor);
+            //     }
+            // }
 
-            // Recalibrates avatar scale only. Can be called only if the avatar has been calibrated already.
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                if (data.scale == 0f)
-                {
-                    Debug.LogError("Avatar needs to be calibrated before RecalibrateScale is called.");
-                }
-                VRIKCalibrator.RecalibrateScale(ik, data, scaleMlp);
-            }
+            // // Recalibrates avatar scale only. Can be called only if the avatar has been calibrated already.
+            // if (Input.GetKeyDown(KeyCode.S))
+            // {
+            //     if (data.scale == 0f)
+            //     {
+            //         Debug.LogError("Avatar needs to be calibrated before RecalibrateScale is called.");
+            //     }
+            //     VRIKCalibrator.RecalibrateScale(ik, data, scaleMlp);
+            // }
         }
     }
 }

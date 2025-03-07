@@ -2,35 +2,38 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class FPS : MonoBehaviour
+namespace AsyncCrowd
 {
-    TMP_Text fpsText;
-    public int refreshRate = 10;
-    int frameCounter;
-    float totalTime;
-
-    void Start()
+    public class FPS : MonoBehaviour
     {
-        fpsText = GetComponent<TMP_Text>();
-        frameCounter = 0;
-        totalTime = 0;
-        
-    }
+        TMP_Text fpsText;
+        public int refreshRate = 10;
+        int frameCounter;
+        float totalTime;
 
-    void Update()
-    {
-        if (frameCounter == refreshRate)
+        void Start()
         {
-            float averageFps = (1.0f / (totalTime / refreshRate));
-            fpsText.text = averageFps.ToString("F1");
+            fpsText = GetComponent<TMP_Text>();
             frameCounter = 0;
             totalTime = 0;
+
         }
-        else
+
+        void Update()
         {
-            totalTime += Time.deltaTime;
-            frameCounter++;
+            if (frameCounter == refreshRate)
+            {
+                float averageFps = (1.0f / (totalTime / refreshRate));
+                fpsText.text = averageFps.ToString("F1");
+                frameCounter = 0;
+                totalTime = 0;
+            }
+            else
+            {
+                totalTime += Time.deltaTime;
+                frameCounter++;
+            }
+
         }
-        
     }
 }
