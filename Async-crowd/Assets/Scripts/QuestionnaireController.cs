@@ -38,8 +38,8 @@ namespace AsyncCrowd
         private GameObject currentScaleGO;
         private List<GameObject> currentScales;
         private bool isStart;
-        private bool isAllowedCheck;
-        private bool isEnd;
+        // private bool isAllowedCheck;
+        // private bool isEnd;
         private int currentSpesScale;
         private int currentVrsqScale;
         private int currentSusScale;
@@ -229,7 +229,7 @@ namespace AsyncCrowd
         {
             mainText.text = "Please pick up the controllers and answer the questionnaire based on your experience.";
             isStart = false;
-            isEnd = false;
+            // isEnd = false;
 
             spesQuestions = new List<QuestionnaireData>
         {
@@ -315,7 +315,7 @@ namespace AsyncCrowd
 
             smallInstruction.text = "";
             largeInstruction.text = "Press A to begin.";
-            isAllowedCheck = false;
+            // isAllowedCheck = false;
 
             foreach (var scale in currentScales)
             {
@@ -327,7 +327,7 @@ namespace AsyncCrowd
         {
             yield return WriteQuestionnaireData();
             isStart = false;
-            isEnd = true;
+            // isEnd = true;
             currentScaleGO.SetActive(false);
             smallInstruction.text = "";
             largeInstruction.text = "";
